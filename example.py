@@ -15,8 +15,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import agentops
+from agentops.sdk.decorators import tool, trace
 
-agentops.init()
+agentops.init(tags=["math-agent", "google-adk", "calculator"], trace_name="Math Agent ADK Example")
 
 class CalculatorRequest(BaseModel):
     operation: str
@@ -31,6 +32,7 @@ class CalculatorResponse(BaseModel):
     result: float
 
 
+@tool(name="Calculator", cost=0.01)
 def calculator(args: Dict[str, Any], tool_context: ToolContext) -> Dict[str, Any]:
     request = CalculatorRequest(**args)
     
@@ -88,6 +90,7 @@ def create_math_agent() -> Agent:
     return agent
 
 
+@trace(name="AgentExecution", tags=["adk-execution"])
 async def run_agent(
     agent: Agent,
     user_id: str,
@@ -126,6 +129,7 @@ async def run_agent(
     return events
 
 
+@trace(name="MainWorkflow", tags=["main-workflow", "math-demo"])
 async def main() -> None:
     agent = create_math_agent()
     
